@@ -58,12 +58,6 @@ NSArray<NSArray<UIColor *> *> *_crewmateColors = nil;
 	}
 }
 
-- (instancetype)init {
-	if ((self = [super init])) {
-	}
-	return self;
-}
-
 - (void)didMoveToWindow {
 	if (_timer && !self.window) {
 		[_timer invalidate];
@@ -71,17 +65,18 @@ NSArray<NSArray<UIColor *> *> *_crewmateColors = nil;
 	}
 	else if (!_timer && self.window) {
 		_timer = [NSTimer
-			scheduledTimerWithTimeInterval:1.0
+			timerWithTimeInterval:1.0
 			target:self
 			selector:@selector(addCrewmateTimerTick:)
 			userInfo:nil
 			repeats:YES
 		];
+		[[NSRunLoop mainRunLoop] addTimer:_timer forMode:NSRunLoopCommonModes];
 	}
 }
 
 - (NSUInteger)maxCrewmateCount {
-	return (NSUInteger)ceil((CGFloat)(self.frame.size.height * self.frame.size.height) / 2800.0);
+	return (NSUInteger)ceil((CGFloat)(self.frame.size.height * self.frame.size.height) / 25013.0);
 }
 
 - (void)addCrewmateTimerTick:(id)sender {
@@ -95,13 +90,14 @@ NSArray<NSArray<UIColor *> *> *_crewmateColors = nil;
 	}
 	if ((_visibleCrewmateCount < 3) || arc4random_uniform(4)) {
 		// If there are less than 3 crewmates, add a new one
-		// If there are 3 or more crewmates, add a new one with 75% chance
+		// If there are 3 or more crewmates, add a new one by 75% chance
 		[self addCrewmate];
 	}
 }
 
 - (void)addCrewmate {
-	// Rotation animation with random properties
+	// sqrt() is used in the random duration calculation to make smaller
+	// values less likely.
 	const CGFloat max = 10.0;
 	CGFloat duration = 0.5 + sqrt(((CGFloat)arc4random_uniform((long)(100 * pow(max, 2))))/100.0);
 	CABasicAnimation *rotationAnimation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
@@ -117,33 +113,52 @@ NSArray<NSArray<UIColor *> *> *_crewmateColors = nil;
 	crewmate.lightColor = _crewmateColors[colorIndex][0];
 	crewmate.darkColor = _crewmateColors[colorIndex][1];
 	crewmate.crewmateID = arc4random_uniform([NAIFloatingCrewmate crewmateCount]);
-	CGFloat scale = 0.1 + ((CGFloat)arc4random_uniform(400000) / 1000000.0);
+	CGFloat scale = 0.1 + ((CGFloat)arc4random_uniform(350000) / 1000000.0);
 	crewmate.transform = CGAffineTransformScale(
 		CGAffineTransformIdentity,
 		scale,
 		scale
 	);
 	CGSize sizeThatFits = [crewmate sizeThatFits:CGSizeZero];
-	crewmate.frame = CGRectMake(
-		self.frame.size.width,
-		arc4random_uniform(self.frame.size.height) - 300,
-		sizeThatFits.width * scale,
-		sizeThatFits.height * scale
-	);
+	BOOL fromLeftToRight = !!arc4random_uniform(3); // 66.6% chance
+	if (fromLeftToRight) {
+		crewmate.frame = CGRectMake(
+			self.frame.size.width,
+			arc4random_uniform(self.frame.size.height) - 300,
+			sizeThatFits.width * scale,
+			sizeThatFits.height * scale
+		);
+	}
+	else {
+		crewmate.frame = CGRectMake(
+			arc4random_uniform(self.frame.size.width - (sizeThatFits.width * scale)),
+			self.frame.size.height,
+			sizeThatFits.width * scale,
+			sizeThatFits.height * scale
+		);
+	}
 	crewmate.layer.zPosition = scale * 10000.0;
 
 	// Add animations
 	[self addSubview:crewmate];
 	_visibleCrewmateCount++;
 	[crewmate.layer addAnimation:rotationAnimation forKey:@"rotationAnimation"];
-	CGFloat targetY = arc4random_uniform(self.frame.size.height + 300);
+	CGFloat targetY, targetX;
+	if (fromLeftToRight) {
+		targetX = -300;
+		targetY = arc4random_uniform(self.frame.size.height + 300);
+	}
+	else {
+		targetY = -300;
+		targetX = arc4random_uniform(self.frame.size.width + (sizeThatFits.width * scale));
+	}
 	[UIView
 		animateWithDuration:15.0 + (NSTimeInterval)arc4random_uniform(16)
 		delay:0.0
 		options:UIViewAnimationOptionCurveLinear
 		animations:^{
 			crewmate.frame = CGRectMake(
-				-300,
+				targetX,
 				targetY,
 				crewmate.frame.size.width,
 				crewmate.frame.size.height
