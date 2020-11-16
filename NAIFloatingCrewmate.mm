@@ -1,15 +1,7 @@
 #import "NAIFloatingCrewmate.h"
-#import "Tweak.h"
 
 @implementation NAIFloatingCrewmate {
 	UIImageView *_imageView;
-	UIImageView *_lightMaskView;
-	UIImageView *_darkMaskView;
-	NSLayoutConstraint *_leftAnchor;
-	NSLayoutConstraint *_topAnchor;
-	NSLayoutConstraint *_heightAnchor;
-	NSLayoutConstraint *_widthAnchor;
-	UIView *_autoLayoutView;
 }
 
 static UIImage *_lightMask;
@@ -21,8 +13,8 @@ static UIColor *_forteGreenDark;
 + (void)initialize {
 	if (self == [NAIFloatingCrewmate class]) {
 		NSBundle *bundle = GetNotAnImpostorBundle();
-		_lightMask = [[UIImage imageWithContentsOfFile:[bundle pathForResource:@"light" ofType:@"png"]] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-		_darkMask = [[UIImage imageWithContentsOfFile:[bundle pathForResource:@"dark" ofType:@"png"]] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+		_lightMask = [UIImage imageWithContentsOfFile:[bundle pathForResource:@"light" ofType:@"png"]];
+		_darkMask = [UIImage imageWithContentsOfFile:[bundle pathForResource:@"dark" ofType:@"png"]];
 		_image = [UIImage imageWithContentsOfFile:[bundle pathForResource:@"other" ofType:@"png"]];
 		_forteGreenLight = [UIColor colorWithRed:0.149 green:0.592 blue:0.337 alpha:1.0];
 		_forteGreenDark = [UIColor colorWithRed:0.078 green:0.243 blue:0.113 alpha:1.0];
@@ -33,16 +25,16 @@ static UIColor *_forteGreenDark;
 	if (!lightColor) {
 		[NSException raise:NSInvalidArgumentException format:@"Crewmate colors must not be nil."];
 	}
-	_lightMaskView.tintColor = lightColor;
 	_lightColor = lightColor;
+	[self setNeedsDisplay];
 }
 
 - (void)setDarkColor:(UIColor *)darkColor {
 	if (!darkColor) {
 		[NSException raise:NSInvalidArgumentException format:@"Crewmate colors must not be nil."];
 	}
-	_darkMaskView.tintColor = darkColor;
 	_darkColor = darkColor;
+	[self setNeedsDisplay];
 }
 
 
@@ -73,10 +65,6 @@ const NSUInteger _propertiesCount = (sizeof(_properties) / sizeof(*_properties))
 	if (_propertiesCount <= crewmateID) {
 		[NSException raise:NSInvalidArgumentException format:@"Attempted to set the Crewmate ID to %lu, which is not in the range {0..%lu}.", (unsigned long)crewmateID, (unsigned long)(_propertiesCount-1)];
 	}
-	_leftAnchor.constant = -_properties[crewmateID][0];
-	_topAnchor.constant = -_properties[crewmateID][1];
-	_widthAnchor.constant = _properties[crewmateID][2];
-	_heightAnchor.constant = _properties[crewmateID][3];
 	[self setNeedsLayout];
 	_crewmateID = crewmateID;
 }
@@ -85,43 +73,55 @@ const NSUInteger _propertiesCount = (sizeof(_properties) / sizeof(*_properties))
 	return CGSizeMake(_properties[_crewmateID][2], _properties[_crewmateID][3]);
 }
 
+- (void)layoutSubviews {
+	[super layoutSubviews];
+	CGRect imageRect = CGRectMake(
+		-_properties[_crewmateID][0],
+		-_properties[_crewmateID][1],
+		_properties[_crewmateID][0] + _properties[_crewmateID][2],
+		_properties[_crewmateID][1] + _properties[_crewmateID][3]
+	);
+	_imageView.frame = imageRect;
+}
+
+- (void)drawRect:(CGRect)rect {
+	[super drawRect:rect];
+	CGContextRef context = UIGraphicsGetCurrentContext();
+	CGRect maskRect = CGRectMake(
+		-_properties[_crewmateID][0],
+		_properties[_crewmateID][1],
+		_lightMask.size.width,
+		_lightMask.size.height
+	);
+
+	// Setup
+	CGContextTranslateCTM(context, 0, _lightMask.size.height);
+	CGContextScaleCTM(context, 1.0, -1.0);
+	
+	// Light parts
+	CGContextSaveGState(context);
+	[_lightColor setFill];
+	CGContextClipToMask(context, maskRect, [_lightMask CGImage]);
+	CGContextFillRect(context, maskRect);
+
+	// Dark parts
+	CGContextRestoreGState(context);
+	[_darkColor setFill];
+	CGContextClipToMask(context, maskRect, [_darkMask CGImage]);
+	CGContextFillRect(context, maskRect);
+}
+
 - (instancetype)init {
 	if ((self = [super init])) {
-		_autoLayoutView = [UIView new];
-		_autoLayoutView.translatesAutoresizingMaskIntoConstraints = NO;
 		_imageView = [UIImageView new];
-		_darkMaskView = [UIImageView new];
-		_lightMaskView = [UIImageView new];
-		_imageView.translatesAutoresizingMaskIntoConstraints = NO;
-		_darkMaskView.translatesAutoresizingMaskIntoConstraints = NO;
-		_lightMaskView.translatesAutoresizingMaskIntoConstraints = NO;
 		_imageView.contentMode = UIViewContentModeTopLeft;
-		_darkMaskView.contentMode = UIViewContentModeTopLeft;
-		_lightMaskView.contentMode = UIViewContentModeTopLeft;
+		self.opaque = NO;
+		self.backgroundColor = [UIColor clearColor];
+		_imageView.image = _image;
+		self.clipsToBounds = YES;
 		self.lightColor = _forteGreenLight;
 		self.darkColor = _forteGreenDark;
-		_imageView.image = _image;
-		_darkMaskView.image = _darkMask;
-		_lightMaskView.image = _lightMask;
-		self.clipsToBounds = YES;
-		[self addSubview:_autoLayoutView];
 		[self addSubview:_imageView];
-		[self addSubview:_darkMaskView];
-		[self addSubview:_lightMaskView];
-		[self addConstraints:@[
-			[_darkMaskView.topAnchor constraintEqualToAnchor:_imageView.topAnchor],
-			[_darkMaskView.leftAnchor constraintEqualToAnchor:_imageView.leftAnchor],
-			[_lightMaskView.topAnchor constraintEqualToAnchor:_imageView.topAnchor],
-			[_lightMaskView.leftAnchor constraintEqualToAnchor:_imageView.leftAnchor],
-			[_autoLayoutView.topAnchor constraintEqualToAnchor:self.topAnchor],
-			[_autoLayoutView.leftAnchor constraintEqualToAnchor:self.leftAnchor],
-			[_autoLayoutView.rightAnchor constraintEqualToAnchor:self.rightAnchor],
-			[_autoLayoutView.bottomAnchor constraintEqualToAnchor:self.bottomAnchor],
-			_heightAnchor = [_autoLayoutView.heightAnchor constraintEqualToConstant:0.0],
-			_widthAnchor = [_autoLayoutView.widthAnchor constraintEqualToConstant:0.0],
-			_topAnchor = [_imageView.topAnchor constraintEqualToAnchor:self.topAnchor],
-			_leftAnchor = [_imageView.leftAnchor constraintEqualToAnchor:self.leftAnchor]
-		]];
 		self.crewmateID = 0;
 	}
 	return self;

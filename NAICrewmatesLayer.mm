@@ -81,13 +81,18 @@ NSArray<NSArray<UIColor *> *> *_crewmateColors = nil;
 
 - (void)addCrewmateTimerTick:(id)sender {
 	SpringBoard *springboard = (SpringBoard *)[UIApplication sharedApplication];
+	BOOL screenIsOn = YES;
+	if (kCFCoreFoundationVersionNumber >= 847.20) {
+		// iOS 7.0 and higher
+		screenIsOn = [[c(SBBacklightController) sharedInstance] screenIsOn];
+	}
 	if (
 		// Return if there is an app in the foreground and if the device is not locked
 		([springboard _accessibilityFrontMostApplication] && ![springboard isLocked]) ||
 		// Return if the maximum number of crewmates has been reached
 		(_visibleCrewmateCount >= [self maxCrewmateCount]) ||
 		// Return if the screen is off
-		![[c(SBBacklightController) sharedInstance] screenIsOn]
+		!screenIsOn
 	) {
 		return;
 	}

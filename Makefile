@@ -1,11 +1,15 @@
 NAI_SIMULATOR ?= 0
 
+CFLAGS = -include Tweak.h
+
 ifneq ($(NAI_SIMULATOR),0)
 TARGET := simulator:clang:latest:7.0
 ARCHS = x86_64
-TARGET_CODESIGN_FLAGS ?= --sign '$(shell security find-identity -p codesigning -v | head -n 1 | xargs | cut -d " " -f 2)'
+CFLAGS += -DNAI_SIMULATOR
+IOS_SIGNATURE ?= -
+TARGET_CODESIGN_FLAGS ?= -s '$(IOS_SIGNATURE)'
 else
-TARGET := iphone:clang:latest:9.0
+TARGET := iphone:clang:latest:6.0
 ARCHS = arm64e arm64 armv7
 endif
 
