@@ -13,7 +13,7 @@
 - (BOOL)screenIsOn;
 @end
 
-const CGFloat _crewmateColorValues[10][2][3] = {
+const CGFloat _crewmateColorValues[12][2][3] = {
 	// {{LightR, LightG, LightB}, {DarkR, DarkG, DarkB}}
 	{{0.741, 0.082, 0.109}, {0.466, 0.050, 0.219}}, // Red
 	{{0.070, 0.176, 0.792}, {0.035, 0.082, 0.545}}, // Blue
@@ -24,7 +24,9 @@ const CGFloat _crewmateColorValues[10][2][3] = {
 	{{0.807, 0.850, 0.905}, {0.498, 0.568, 0.713}}, // White
 	{{0.407, 0.211, 0.690}, {0.227, 0.109, 0.462}}, // Purple
 	{{0.482, 0.262, 0.109}, {0.372, 0.176, 0.070}}, // Brown
-	{{0.333, 0.901, 0.274}, {0.129, 0.635, 0.262}}  // Lime
+	{{0.333, 0.901, 0.274}, {0.129, 0.635, 0.262}}, // Lime
+	{{0.219, 0.996, 0.862}, {0.141, 0.662, 0.749}}, // Cyan
+	{{0.925, 0.341, 0.721}, {0.670, 0.200, 0.670}}  // Pink
 };
 
 NSArray<NSArray<UIColor *> *> *_crewmateColors = nil;
