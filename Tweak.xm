@@ -76,7 +76,7 @@ static void NAIAddCrewmateLayer(UIView *view) {
 	}
 }
 
-%group iOS3
+%group iOS6
 %hook SBWallpaperView
 
 - (SBWallpaperView *)initWithOrientation:(int)arg1 variant:(int)arg2 {
@@ -134,7 +134,7 @@ NSBundle *GetNotAnImpostorBundle() {
 %ctor {
 	if (kCFCoreFoundationVersionNumber >= 1333.20) %init(iOS10);
 	else if (kCFCoreFoundationVersionNumber >= 847.20) %init(iOS7);
-	else %init(iOS3);
+	else %init(iOS6);
 	const char * const names[] = {
 		"Blue",
 		"Red",
