@@ -11,6 +11,7 @@
 @interface SBBacklightController : NSObject
 + (instancetype)sharedInstance;
 - (BOOL)screenIsOn;
+- (BOOL)screenIsOff;
 @end
 
 const CGFloat _crewmateColorValues[12][2][3] = {
@@ -86,7 +87,13 @@ NSArray<NSArray<UIColor *> *> *_crewmateColors = nil;
 	BOOL screenIsOn = YES;
 	if (kCFCoreFoundationVersionNumber >= 847.20) {
 		// iOS 7.0 and higher
-		screenIsOn = [[c(SBBacklightController) sharedInstance] screenIsOn];
+		SBBacklightController *backlightController = [c(SBBacklightController) sharedInstance];
+		if ([backlightController respondsToSelector:@selector(screenIsOn)]) {
+			screenIsOn = [backlightController screenIsOn];
+		}
+		else if ([backlightController respondsToSelector:@selector(screenIsOff)]) {
+			screenIsOn = ![backlightController screenIsOff];
+		}
 	}
 	if (
 		// Return if there is an app in the foreground and if the device is not locked
