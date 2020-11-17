@@ -108,6 +108,7 @@ NSArray<NSArray<UIColor *> *> *_crewmateColors = nil;
 	if ((_visibleCrewmateCount < 3) || arc4random_uniform(4)) {
 		// If there are less than 3 crewmates, add a new one
 		// If there are 3 or more crewmates, add a new one by 75% chance
+		_visibleCrewmateCount++;
 		[self addCrewmate];
 	}
 }
@@ -124,11 +125,27 @@ NSArray<NSArray<UIColor *> *> *_crewmateColors = nil;
 	rotationAnimation.cumulative = YES;
 	rotationAnimation.repeatCount = HUGE_VALF;
 	
+	// Check if it's April Fools' Day
+	BOOL isAprilFoolsDay;
+	@autoreleasepool {
+		NSDate *currentDate = [NSDate date];
+		NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
+		NSDateComponents *components = [calendar components:(NSCalendarUnitDay | NSCalendarUnitMonth) fromDate:currentDate];
+		isAprilFoolsDay = (
+			([components month] == 4) &&
+			([components day] == 1)
+		);
+	}
+
 	// Crewmate with random properties
 	NAIFloatingCrewmate *crewmate = [NAIFloatingCrewmate new];
-	int colorIndex = arc4random_uniform(_crewmateColors.count);
-	crewmate.lightColor = _crewmateColors[colorIndex][0];
-	crewmate.darkColor = _crewmateColors[colorIndex][1];
+	if (!isAprilFoolsDay || arc4random_uniform(4)) {
+		// If it's April Fools' Day, a crewmate can have the fortegreen
+		// color with 25% chance.
+		int colorIndex = arc4random_uniform(_crewmateColors.count);
+		crewmate.lightColor = _crewmateColors[colorIndex][0];
+		crewmate.darkColor = _crewmateColors[colorIndex][1];
+	}
 	crewmate.crewmateID = arc4random_uniform([NAIFloatingCrewmate crewmateCount]);
 	CGFloat scale = 0.1 + ((CGFloat)arc4random_uniform(350000) / 1000000.0);
 	crewmate.transform = CGAffineTransformScale(
@@ -158,12 +175,11 @@ NSArray<NSArray<UIColor *> *> *_crewmateColors = nil;
 
 	// Add animations
 	[self addSubview:crewmate];
-	_visibleCrewmateCount++;
 	[crewmate.layer addAnimation:rotationAnimation forKey:@"rotationAnimation"];
 	CGFloat targetY, targetX;
 	if (fromLeftToRight) {
 		targetX = -300;
-		targetY = arc4random_uniform(self.frame.size.height + 300);
+		targetY = arc4random_uniform(self.frame.size.height);
 	}
 	else {
 		targetY = -300;
