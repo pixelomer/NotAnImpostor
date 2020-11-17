@@ -79,7 +79,9 @@ NSArray<NSArray<UIColor *> *> *_crewmateColors = nil;
 }
 
 - (NSUInteger)maxCrewmateCount {
-	return (NSUInteger)ceil((CGFloat)(self.frame.size.height * self.frame.size.height) / 25013.0);
+	NSUInteger maxValue = (NSUInteger)ceil((CGFloat)(self.frame.size.width * self.frame.size.height) / 25013.0);
+	if (maxValue < 5) return 5;
+	return maxValue;
 }
 
 - (void)addCrewmateTimerTick:(id)sender {
