@@ -7,10 +7,23 @@ fi
 
 set -e
 
-FINALPACKAGE=1 DEBUG=0 NAI_SIMULATOR=1 make clean all
-rm -f /opt/simject/NotAnImpostor.*
-rm -rf /opt/simject/NotAnImpostor
-cp -r "layout/Library/Application Support/NotAnImpostor" /opt/simject/NotAnImpostor
-cp .theos/obj/iphone_simulator/NotAnImpostor.dylib /opt/simject/
-cp NotAnImpostor.plist /opt/simject/
-resim all
+if [ "$1" == "ios" ]; then
+  export NAI_TARGET="iOS_Simulator"
+  resim="resim"
+  SIMJECT_DIR="/opt/simject"
+elif [ "$1" == "tvos" ]; then
+  export NAI_TARGET="tvOS_Simulator"
+  resim="resim_tv"
+  SIMJECT_DIR="/opt/simjectTV"
+else
+  echo "No target supplied!"
+  exit 1
+fi
+
+FINALPACKAGE=1 DEBUG=0 make clean all
+rm -f ${SIMJECT_DIR}/NotAnImpostor.*
+rm -rf ${SIMJECT_DIR}/NotAnImpostor
+cp -r "layout/Library/Application Support/NotAnImpostor" ${SIMJECT_DIR}/NotAnImpostor
+cp .theos/obj/iphone_simulator/NotAnImpostor.dylib ${SIMJECT_DIR}/
+cp NotAnImpostor.plist ${SIMJECT_DIR}/
+"${resim}" all

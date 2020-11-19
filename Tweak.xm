@@ -1,11 +1,22 @@
 #import <UIKit/UIKit.h>
+#import <TargetConditionals.h>
 #import "NAICrewmatesLayer.h"
 #import <objc/runtime.h>
+
+#if !defined(NAI_TARGET_IOS) && !defined(NAI_TARGET_TVOS)
+#error Invalid target
+#elif defined(NAI_TARGET_IOS) && defined(NAI_TARGET_TVOS)
+#error Invalid target
+#endif
 
 @interface SBFWallpaperView : UIView
 @end
 
 @interface SBWallpaperView : UIView
+@end
+
+@interface PBWallpaperViewController : UIViewController
+- (UIView *)wallpaperView;
 @end
 
 @interface UIView(Private)
@@ -114,12 +125,28 @@ static void NAIAddCrewmateLayer(UIView *view) {
 %end
 %end
 
+%group tvOS
+%hook PBWallpaperViewController
+
+- (void)viewDidLoad {
+	%orig;
+	NAIAddCrewmateLayer([self view]);
+	NAIAddCrewmateLayer([self wallpaperView]);
+}
+
+%end
+%end
+
 NSBundle *GetNotAnImpostorBundle() {
 	static NSBundle *bundle;
 	static dispatch_once_t token;
 	dispatch_once(&token, ^{
-		#ifdef NAI_SIMULATOR
+		#ifdef NAI_TARGET_SIMULATOR
+		#if defined(NAI_TARGET_TVOS)
+		NSString * const path = @"/opt/simjectTV/NotAnImpostor";
+		#elif defined(NAI_TARGET_IOS)
 		NSString * const path = @"/opt/simject/NotAnImpostor";
+		#endif
 		#else
 		NSString * const path = @"/Library/Application Support/NotAnImpostor";
 		#endif
@@ -132,9 +159,25 @@ NSBundle *GetNotAnImpostorBundle() {
 }
 
 %ctor {
-	if (kCFCoreFoundationVersionNumber >= 1333.20) %init(iOS10);
-	else if (kCFCoreFoundationVersionNumber >= 847.20) %init(iOS7);
-	else %init(iOS6);
+#if NAI_TARGET_IOS
+	if (kCFCoreFoundationVersionNumber >= 1333.20) {
+		%init(iOS10);
+	}
+	else if (kCFCoreFoundationVersionNumber >= 847.20) {
+		%init(iOS7);
+	}
+	else if (kCFCoreFoundationVersionNumber >= 793.00) {
+		%init(iOS6);
+	}
+#elif NAI_TARGET_TVOS
+	if (@available(tvOS 12.0, *)) {
+		%init(tvOS);
+	}
+#endif
+	else {
+		NSLog(@"This system version is not supported.");
+		return;
+	}
 	const char * const names[] = {
 		"Blue",
 		"Red",

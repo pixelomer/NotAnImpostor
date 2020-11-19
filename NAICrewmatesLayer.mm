@@ -85,6 +85,7 @@ NSArray<NSArray<UIColor *> *> *_crewmateColors = nil;
 }
 
 - (void)addCrewmateTimerTick:(id)sender {
+#if NAI_TARGET_IOS
 	SpringBoard *springboard = (SpringBoard *)[UIApplication sharedApplication];
 	BOOL screenIsOn = YES;
 	if (kCFCoreFoundationVersionNumber >= 847.20) {
@@ -100,13 +101,16 @@ NSArray<NSArray<UIColor *> *> *_crewmateColors = nil;
 	if (
 		// Return if there is an app in the foreground and if the device is not locked
 		([springboard _accessibilityFrontMostApplication] && ![springboard isLocked]) ||
-		// Return if the maximum number of crewmates has been reached
-		(_visibleCrewmateCount >= [self maxCrewmateCount]) ||
 		// Return if the screen is off
 		!screenIsOn
 	) {
 		return;
 	}
+#endif
+	if (
+		// Return if the maximum crewmate count has been reached
+		(_visibleCrewmateCount >= [self maxCrewmateCount])
+	) return;
 	if ((_visibleCrewmateCount < 3) || arc4random_uniform(4)) {
 		// If there are less than 3 crewmates, add a new one
 		// If there are 3 or more crewmates, add a new one by 75% chance
