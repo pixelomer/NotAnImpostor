@@ -3,9 +3,9 @@
 #import "NAICrewmatesLayer.h"
 #import <objc/runtime.h>
 
-#if !defined(NAI_TARGET_IOS) && !defined(NAI_TARGET_TVOS)
+#if !NAI_TARGET_IOS && !NAI_TARGET_TVOS
 #error Invalid target
-#elif defined(NAI_TARGET_IOS) && defined(NAI_TARGET_TVOS)
+#elif NAI_TARGET_IOS && NAI_TARGET_TVOS
 #error Invalid target
 #endif
 
@@ -141,10 +141,10 @@ NSBundle *GetNotAnImpostorBundle() {
 	static NSBundle *bundle;
 	static dispatch_once_t token;
 	dispatch_once(&token, ^{
-		#ifdef NAI_TARGET_SIMULATOR
-		#if defined(NAI_TARGET_TVOS)
+		#if NAI_TARGET_SIMULATOR
+		#if NAI_TARGET_TVOS
 		NSString * const path = @"/opt/simjectTV/NotAnImpostor";
-		#elif defined(NAI_TARGET_IOS)
+		#elif NAI_TARGET_IOS
 		NSString * const path = @"/opt/simject/NotAnImpostor";
 		#endif
 		#else

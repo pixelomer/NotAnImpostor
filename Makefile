@@ -8,7 +8,7 @@ ifeq ($(NAI_TARGET),iOS)
 # iOS (native)
 ARCHS = arm64e arm64 armv7
 TARGET := iphone:clang:latest:6.0
-CFLAGS += -DNAI_TARGET_IOS
+CFLAGS += -DNAI_TARGET_IOS=1
 
 else
 ifeq ($(NAI_TARGET),tvOS)
@@ -16,14 +16,14 @@ ifeq ($(NAI_TARGET),tvOS)
 # tvOS (native)
 ARCHS = arm64 arm64e
 TARGET := appletv:clang:latest:12.0
-CFLAGS += -DNAI_TARGET_TVOS
+CFLAGS += -DNAI_TARGET_TVOS=1
 
 else
 
 # iOS (simulator)
 ARCHS = x86_64
 TARGET := simulator:clang:latest:7.0
-CFLAGS += -DNAI_TARGET_SIMULATOR
+CFLAGS += -DNAI_TARGET_SIMULATOR=1
 IOS_SIGNATURE ?= -
 TARGET_CODESIGN_FLAGS ?= -s '$(IOS_SIGNATURE)'
 
