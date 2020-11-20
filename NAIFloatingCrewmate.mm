@@ -65,8 +65,9 @@ const NSUInteger _propertiesCount = (sizeof(_properties) / sizeof(*_properties))
 	if (_propertiesCount <= crewmateID) {
 		[NSException raise:NSInvalidArgumentException format:@"Attempted to set the Crewmate ID to %lu, which is not in the range {0..%lu}.", (unsigned long)crewmateID, (unsigned long)(_propertiesCount-1)];
 	}
-	[self setNeedsLayout];
 	_crewmateID = crewmateID;
+	[self setNeedsLayout];
+	[self setNeedsDisplay];
 }
 
 - (CGSize)sizeThatFits:(CGSize)size {
