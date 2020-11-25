@@ -9,11 +9,11 @@ set -e
 
 if [ "$1" == "ios" ]; then
   export NAI_TARGET="iOS_Simulator"
-  resim="resim"
+  resim="resim_ios"
   SIMJECT_DIR="/opt/simject"
 elif [ "$1" == "tvos" ]; then
   export NAI_TARGET="tvOS_Simulator"
-  resim="resim_tv"
+  resim="resim_tvos"
   SIMJECT_DIR="/opt/simjectTV"
 else
   echo "No target supplied!"
