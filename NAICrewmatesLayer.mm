@@ -207,6 +207,10 @@ NSArray<NSArray<UIColor *> *> *_crewmateColors = nil;
 	}
 	crewmate.crewmateID = arc4random_uniform([NAIFloatingCrewmate crewmateCount]);
 	CGFloat scale = 0.1 + ((CGFloat)arc4random_uniform(350000) / 1000000.0);
+	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+		// Make crewmates slightly larger on iPad
+		scale += 0.25;
+	}
 	crewmate.transform = CGAffineTransformScale(
 		CGAffineTransformIdentity,
 		scale,
