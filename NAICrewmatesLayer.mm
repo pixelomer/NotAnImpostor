@@ -213,22 +213,45 @@ NSArray<NSArray<UIColor *> *> *_crewmateColors = nil;
 		scale
 	);
 	CGSize sizeThatFits = [crewmate sizeThatFits:CGSizeZero];
-	BOOL fromLeftToRight = !!arc4random_uniform(3); // 66.6% chance
-	if (fromLeftToRight) {
-		crewmate.frame = CGRectMake(
-			self.frame.size.width,
-			arc4random_uniform(self.frame.size.height) - 300,
-			sizeThatFits.width * scale,
-			sizeThatFits.height * scale
-		);
-	}
-	else {
-		crewmate.frame = CGRectMake(
-			arc4random_uniform(self.frame.size.width - (sizeThatFits.width * scale)),
-			self.frame.size.height,
-			sizeThatFits.width * scale,
-			sizeThatFits.height * scale
-		);
+	enum direction_type {
+		LEFT_TO_RIGHT = 0,
+		RIGHT_TO_LEFT = 1,
+		UP_TO_DOWN = 2,
+		DOWN_TO_UP = 3
+	} direction = (enum direction_type)arc4random_uniform(4);
+	switch (direction) {
+		case RIGHT_TO_LEFT:
+			crewmate.frame = CGRectMake(
+				self.frame.size.width,
+				arc4random_uniform(self.frame.size.height) - 300,
+				sizeThatFits.width * scale,
+				sizeThatFits.height * scale
+			);
+			break;
+		case LEFT_TO_RIGHT:
+			crewmate.frame = CGRectMake(
+				-300,
+				arc4random_uniform(self.frame.size.height) - 300,
+				sizeThatFits.width * scale,
+				sizeThatFits.height * scale
+			);
+			break;
+		case UP_TO_DOWN:
+			crewmate.frame = CGRectMake(
+				arc4random_uniform(self.frame.size.width - (sizeThatFits.width * scale)),
+				self.frame.size.height,
+				sizeThatFits.width * scale,
+				sizeThatFits.height * scale
+			);
+			break;
+		case DOWN_TO_UP:
+			crewmate.frame = CGRectMake(
+				arc4random_uniform(self.frame.size.width - (sizeThatFits.width * scale)),
+				-300,
+				sizeThatFits.width * scale,
+				sizeThatFits.height * scale
+			);
+			break;
 	}
 	crewmate.layer.zPosition = scale * 10000.0;
 
@@ -236,13 +259,27 @@ NSArray<NSArray<UIColor *> *> *_crewmateColors = nil;
 	[self addSubview:crewmate];
 	[crewmate.layer addAnimation:rotationAnimation forKey:@"rotationAnimation"];
 	CGFloat targetY, targetX;
-	if (fromLeftToRight) {
-		targetX = -300;
-		targetY = arc4random_uniform(self.frame.size.height);
-	}
-	else {
-		targetY = -300;
-		targetX = arc4random_uniform(self.frame.size.width + (sizeThatFits.width * scale));
+	switch (direction) {
+		case RIGHT_TO_LEFT:
+			targetX = -300;
+			targetY = arc4random_uniform(self.frame.size.height +
+				(sizeThatFits.height * scale)) - (sizeThatFits.height * scale / 2);
+			break;
+		case LEFT_TO_RIGHT:
+			targetX = self.frame.size.height + 300;
+			targetY = arc4random_uniform(self.frame.size.height +
+				(sizeThatFits.height * scale)) - (sizeThatFits.height * scale / 2);
+			break;
+		case UP_TO_DOWN:
+			targetY = -300;
+			targetX = arc4random_uniform(self.frame.size.width +
+				(sizeThatFits.width * scale)) - (sizeThatFits.width * scale / 2);
+			break;
+		case DOWN_TO_UP:
+			targetY = self.frame.size.height + 300;
+			targetX = arc4random_uniform(self.frame.size.width +
+				(sizeThatFits.width * scale)) - (sizeThatFits.width * scale / 2);
+			break;
 	}
 	[UIView
 		animateWithDuration:15.0 + (NSTimeInterval)arc4random_uniform(16)
