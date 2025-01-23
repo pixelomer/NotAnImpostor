@@ -55,6 +55,7 @@
 #import <TargetConditionals.h>
 #import "NAICrewmatesLayer.h"
 #import <objc/runtime.h>
+#import <libroot.h>
 
 #if !NAI_TARGET_IOS && !NAI_TARGET_TVOS
 #error Invalid target
@@ -211,12 +212,12 @@ NSBundle *GetNotAnImpostorBundle() {
 	dispatch_once(&token, ^{
 		#if NAI_TARGET_SIMULATOR
 		#if NAI_TARGET_TVOS
-		NSString * const path = @"/opt/simjectTV/NotAnImpostor";
+		NSString *path = @"/opt/simjectTV/NotAnImpostor";
 		#elif NAI_TARGET_IOS
-		NSString * const path = @"/opt/simject/NotAnImpostor";
+		NSString *path = @"/opt/simject/NotAnImpostor";
 		#endif
 		#else
-		NSString * const path = @"/Library/Application Support/NotAnImpostor";
+		NSString *path = JBROOT_PATH_NSSTRING(@"/Library/Application Support/NotAnImpostor");
 		#endif
 		bundle = [NSBundle bundleWithPath:path];
 		if (!bundle) {
