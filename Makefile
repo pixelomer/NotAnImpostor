@@ -54,7 +54,7 @@ include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = NotAnImpostor
 
-NotAnImpostor_FILES = $(wildcard *.mm) $(wildcard *.xm)
+NotAnImpostor_FILES = $(wildcard *.m) $(wildcard *.x)
 NotAnImpostor_CFLAGS = -fobjc-arc -Wno-unused-function
 
 include $(THEOS_MAKE_PATH)/tweak.mk
