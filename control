@@ -1,12 +1,12 @@
 Package: com.pixelomer.notanimpostor
 Name: Not An Impostor
-Version: 1.1.5
+Version: 1.2
 Architecture: iphoneos-arm
 Description: Among Us crewmates get ejected to your background
-  See fellow crewmates from Among Us games who were falsesly accused and ejected.
+  See fellow crewmates from Among Us games who were falsely accused and ejected.
   .
   Requires iOS 6.0 or later.
 Maintainer: pixelomer
 Author: pixelomer
 Section: Tweaks
-Depends: mobilesubstrate (>= 0.9.5000), firmware (>=6.0)
+Depends: mobilesubstrate (>= 0.9.5000), firmware (>= 6.0)
