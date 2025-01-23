@@ -85,7 +85,7 @@ static void NAIAddCrewmateLayer(UIView *view) {
 	UIView *layer = objc_getAssociatedObject(view, key);
 	if (view && !layer) {
 		layer = [NAICrewmatesLayer new];
-		layer.layer.zPosition = CGFLOAT_MAX;
+		layer.layer.zPosition = 100000.0;
 		layer.translatesAutoresizingMaskIntoConstraints = NO;
 		[view addSubview:layer];
 		if (kCFCoreFoundationVersionNumber >= 793.00) {
@@ -169,7 +169,22 @@ static void NAIAddCrewmateLayer(UIView *view) {
 %group iOS10
 %hook _SBWallpaperWindow
 
-- (_SBWallpaperWindow *)initWithScreen:(UIScreen *)screen debugName:(id)name {
+- (_SBWallpaperWindow *)initWithWindowScene:(id)scene role:(id)role debugName:(id)name {
+	// iOS 16.0 - iOS 17.x
+	_SBWallpaperWindow *orig = %orig;
+	NAIAddCrewmateLayer(orig);
+	return orig;
+}
+
+- (_SBWallpaperWindow *)initWithScreen:(id)screen role:(id)role debugName:(id)name {
+	// iOS 15.0 - iOS 15.x
+	_SBWallpaperWindow *orig = %orig;
+	NAIAddCrewmateLayer(orig);
+	return orig;
+}
+
+- (_SBWallpaperWindow *)initWithScreen:(id)screen debugName:(id)name {
+	// iOS 10.0 - iOS 14.x
 	_SBWallpaperWindow *orig = %orig;
 	NAIAddCrewmateLayer(orig);
 	return orig;
